@@ -1,0 +1,11 @@
+#canvas {
+    position: absolute;
+    z-index: 1;
+    border: 1px solid black;
+    background: url(map.png) no-repeat center center;
+}
+#calc {
+    position: absolute;
+    z-index: 2;
+    border: 1px solid black;
+}
