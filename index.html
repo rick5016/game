@@ -1,0 +1,493 @@
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" type="text/css" href="index.css" />
+    <title>todo</title>
+</head>
+
+<body>
+    <canvas id="canvas" width="800" height="600"></canvas>
+    <canvas id="calc" width="800" height="600"></canvas>
+    <div id="interface" style="border:solid 1px black;margin-left: 810px;"></div>
+    <script src="jquery.min.js"></script>
+    <script type="text/javascript">
+        var log_active = false;
+        var interface = {
+            "portrait": [
+                {
+                    "id": "portrait",
+                    "image": "objet1.png",
+                    "x1": 15,
+                    "x2": 50,
+                    "y1": 15,
+                    "y2": 50,
+                },
+                {
+                    "id": "life",
+                    "image": "objet1.png",
+                    "life": 10,
+                    "x1": 10,
+                    "x2": 20,
+                    "y1": 10,
+                    "y2": 50,
+                },
+                {
+                    "id": "mana",
+                    "mana": 10,
+                    "image": "objet1.png",
+                    "x1": 40,
+                    "x2": 50,
+                    "y1": 10,
+                    "y2": 50,
+                }
+            ]
+        };
+        var familles = {
+            "famille1": [
+                {
+                    "id": "Paul",
+                    "maison": "maison1",
+                    "image": "perso/perso_h_blue.png",
+                    "sexe": "H",
+                    "age": 33,
+                    "metier": "STO",
+                    "metier_niveau": 4,
+                    "x1": 250,
+                    "x2": 260,
+                    "y1": 50,
+                    "y2": 60,
+                    "action": "",
+                    "faim": 50,
+                    "stock": 0
+                },
+                /*{
+                    "id": "Francine",
+                    "maison": "maison1",
+                    "image": "perso1.png",
+                    "sexe": "F",
+                    "age": 31,
+                    "metier": "STO",
+                    "metier_niveau": 2,
+                    "x1": 790,
+                    "x2": 800,
+                    "y1": 590,
+                    "y2": 600,
+                    "action": "travail",
+                    "faim": 156
+                },
+                {
+                    "id": "Kevin",
+                    "maison": "maison1",
+                    "image": "perso1.png",
+                    "sexe": "H",
+                    "age": 13,
+                    "metier": "STO",
+                    "metier_niveau": 0,
+                    "x1": 0,
+                    "x2": 10,
+                    "y1": 0,
+                    "y2": 10,
+                    "action": "travail",
+                    "faim": 49
+                },
+                {
+                    "id": "Penny",
+                    "maison": "maison1",
+                    "image": "perso1.png",
+                    "sexe": "F",
+                    "age": 3,
+                    "metier": "ENF",
+                    "metier_niveau": 1,
+                    "x1": 0,
+                    "x2": 10,
+                    "y1": 0,
+                    "y2": 10,
+                    "faim": 330
+                }*/
+            ],
+            "famille2": [
+                {
+                    "id": "Jean",
+                    "maison": "maison2",
+                    "image": "perso/perso_h_red.png",
+                    "sexe": "H",
+                    "age": 43,
+                    "metier": "STO",
+                    "metier_niveau": 8,
+                    "x1": 80,
+                    "x2": 90,
+                    "y1": 0,
+                    "y2": 10,
+                    "faim": 70,
+                    "stock": 0
+                },
+                /*{
+                    "id": "Sylvie",
+                    "maison": "maison2",
+                    "image": "perso1.png",
+                    "sexe": "F",
+                    "age": 41,
+                    "metier": "STO",
+                    "metier_niveau": 4,
+                    "x1": 400,
+                    "x2": 410,
+                    "y1": 200,
+                    "y2": 210,
+                    "faim": 137
+                },
+                {
+                    "id": "Jeanne",
+                    "maison": "maison2",
+                    "image": "perso1.png",
+                    "sexe": "F",
+                    "age": 21,
+                    "metier": "STO",
+                    "metier_niveau": 1,
+                    "x1": 300,
+                    "x2": 310,
+                    "y1": 500,
+                    "y2": 510,
+                    "faim": 434
+                }*/
+            ]
+        };
+        var width = 800;
+        var height = 600;
+        var maisons = {
+            "maison1": {
+                "id": "maison1",
+                "image_hover": "batiment/maison1.png",
+                "image": "batiment/maison1.png",
+                "libelle": "Maison",
+                "x1": 300,
+                "x2": 380,
+                "y1": 120,
+                "y2": 180,
+                "stock": 700
+            },
+            "maison2": {
+                "id": "maison2",
+                "image_hover": "batiment/maison2.png",
+                "image": "batiment/maison2.png",
+                "libelle": "Maison",
+                "x1": 400,
+                "x2": 480,
+                "y1": 180,
+                "y2": 240,
+                "stock": 1500
+            },
+            "store": {
+                "id": "store",
+                "image_hover": "batiment/magasin.png",
+                "image": "batiment/magasin.png",
+                "libelle": "Magasin",
+                "x1": 700,
+                "x2": 780,
+                "y1": 100,
+                "y2": 160,
+                "stock": 700000
+            }
+        };
+
+        function life() {
+            var ctx = document.getElementById('calc').getContext('2d');
+            $.each(familles, function (index, famille) {
+                $.each(famille, function (index_famille, perso) {
+                    clear();
+
+                    perso = gestion_faim(perso);
+                    perso = mission(perso);
+
+                    var img = new Image();
+                    img.onload = function () {
+                        ctx.drawImage(img, perso.x1, perso.y1);
+                    };
+                    img.src = perso.image;
+                    perso.img = img;
+                    perso.faim -= 2;
+                });
+            });
+            drawInterface();
+            setTimeout(life, 2000); // 2 sec
+        }
+
+        function gestion_faim(perso) {
+            var nourriture_max = 500;
+            var a_x = maisons[perso.maison].x1; // Coordonnées maison x
+            var a_y = maisons[perso.maison].y1; // Coordonnées maison y
+            var s_x = maisons.store.x1; // Coordonnées store x
+            var s_y = maisons.store.y1; // Coordonnées store y
+            var stock_nourriture = maisons[perso.maison].stock;
+
+            if (perso.faim <= 50 || (perso.action == "Mange" && perso.faim < nourriture_max)) { // Il a faim OU il est en train de manger
+                if (perso.x1 == a_x && perso.y1 == a_y) { // Il est à la maison
+                    if (maisons[perso.maison].stock > 0) { // Les stocks sont OK
+                        perso.mission = "Manger";
+                    } else { // Les stocks sont KO
+                        perso.mission = "Va acheter des provisions";
+                    }
+                } else { // Il n'est pas à la maison
+                    if (perso.mission == "Va au magasin") {
+                        perso.mission = "Va acheter des provisions";
+                    } else {
+                        perso.mission = "Va manger à la maison";
+                    }
+                }
+            } else if ((perso.action == "Mange" && perso.faim >= nourriture_max)) {
+                perso.mission = "Aucune"; // il est en train de manger et a suffisament mangé
+            }
+
+            return perso;
+        }
+
+        function mission(perso) {
+            var nourriture_max = 500;
+            var pixelParSeconde = 10;
+            var d_x = perso.x1; // Coordonnées perso x
+            var d_y = perso.y1; // Coordonnées perso y
+            var a_x = maisons[perso.maison].x1; // Coordonnées maison x
+            var a_y = maisons[perso.maison].y1; // Coordonnées maison y
+            var stock_nourriture = maisons[perso.maison].stock;
+
+            // Missions en cours
+
+            if (perso.mission == "Manger") {
+                log("Mission : Manger");
+                return mange(perso);
+            }
+
+            if (perso.mission == "Va manger à la maison") {
+                log("Mission : Va manger à la maison");
+                return goMaison(perso);
+            }
+
+            if (perso.mission == "Va acheter des provisions") {
+                log("Mission : Va acheter des provisions");
+                return acheter_manger(perso);
+            }
+
+            if (perso.mission == "Va déposer le stock à la maison") {
+                log("Mission : Va déposer le stock à la maison");
+                return deposer_manger(perso);
+            }
+
+            // Donner une mission
+
+            if (perso.position == "maison") {  // Il est à la maison
+                if (stock_nourriture < 500) { // Stock nourriture KO : Va au magasin
+                    log("Il n'y a plus de stock de nourriture");
+                    perso.mission = "Va acheter des provisions"
+                    return goMagasin(perso);
+                }
+            }
+
+            perso = ballade(perso);
+
+            return perso;
+        }
+
+        function deposer_manger(perso) {
+            if (perso.position == "maison") {
+                perso.action = "Dépose les courses";
+                perso.stock -= 100;
+                maisons[perso.maison].stock += 100;
+                if (perso.stock == 0) {
+                    perso.mission = "Aucune";
+                }
+                return perso;
+            } else {
+                return goMaison(perso);
+            }
+        }
+
+        function acheter_manger(perso) {
+            if (perso.position == "magasin") {
+                perso.action = "Achète à manger";
+                perso.stock += 100;
+                maisons.store.stock -= 100;
+                if (perso.stock >= 500) {
+                    perso.mission = "Va déposer le stock à la maison";
+                }
+                return perso;
+            } else {
+                return goMagasin(perso);
+            }
+        }
+
+        function ballade(perso) {
+            log("Je me ballade");
+            perso.mission = "Aucune";
+            perso.action = "En ballade";
+            var r_x = getRandomInt(800);
+            var r_y = getRandomInt(600);
+            perso.x1 = calculPath(perso.x1, r_x);
+            perso.y1 = calculPath(perso.y1, r_y);
+            perso.position = "dehors";
+
+            return perso;
+        }
+
+        function mange(perso) {
+            log('Je mange');
+            perso.action = "Mange";
+            perso.faim += 160;
+            maisons[perso.maison].stock -= 160;
+
+            return perso;
+        }
+
+        function goMagasin(perso) {
+            log('Je vais au magasin');
+            perso.action = "Va au magasin";
+            perso.x1 = calculPath(perso.x1, maisons.store.x1);
+            perso.y1 = calculPath(perso.y1, maisons.store.y1);
+            if (perso.x1 == maisons.store.x1 && perso.y1 == maisons.store.y1) {
+                perso.position = "magasin";
+            }
+
+            return perso;
+        }
+
+        function goMaison(perso) {
+            log('Je vais à la maison');
+            perso.action = "Va à la maison";
+            perso.x1 = calculPath(perso.x1, maisons[perso.maison].x1);
+            perso.y1 = calculPath(perso.y1, maisons[perso.maison].y1);
+            if (perso.x1 == maisons[perso.maison].x1 && perso.y1 == maisons[perso.maison].y1) {
+                perso.position = "maison";
+            }
+
+            return perso;
+        }
+
+        function calculPath(d, a) {
+            if (d < a) {
+                var result = d + (10 * 2);
+                if (result >= a) {
+                    return a;
+                } else {
+                    return result;
+                }
+            } else {
+                var result = d - (10 * 2);
+                if (result <= a) {
+                    return a;
+                } else {
+                    return result;
+                }
+            }
+        }
+        function getRandomInt(max) {
+            return Math.floor(Math.random() * Math.floor(max));
+        }
+
+        function clear() {
+            var ctx = document.getElementById('calc').getContext('2d');
+            ctx.clearRect(0, 0, width, height);
+        }
+
+        function drawInterface() {
+            var div = document.getElementById('interface');
+
+            div.innerHTML = '';
+            $.each(familles, function (index, famille) {
+                div.innerHTML += '<h2>' + index + '(stock nourriture: ' + maisons[famille[0].maison].stock + ')</h2>';
+                $.each(famille, function (index_famille, perso) {
+                    html = '<div style="float:left;border:solid 1px black;padding:5px">';
+                    html += '<h3>' + perso.id + '(' + perso.age + ' ans)</h3>';
+                    html += '<b>action: ' + perso.action + '</b><br />';
+                    html += '<b>mission:' + perso.mission + '</b><br />';
+                    html += '<ul>';
+                    html += '<li>maison: ' + perso.maison + ' (' + maisons[perso.maison].x1 + '/' + maisons[perso.maison].y1 + ')</li>';
+                    html += '<li>personnage: <img src="' + perso.image + '" /> (' + perso.x1 + '/' + perso.y1 + ')</li>';
+                    html += '<li>sexe: ' + perso.sexe + '</li>';
+                    html += '<li>metier: ' + perso.metier + '</li>';
+                    html += '<li>metier_niveau: ' + perso.metier_niveau + '</li>';
+                    html += '<li>faim: ' + perso.faim + '</li>';
+                    html += '</ul>';
+                    html += '</div>';
+                    div.innerHTML += html;
+                });
+                div.innerHTML += '<div style="clear:both"></div>';
+            });
+        }
+
+        function drawPopup(x, y, data) {
+            largeur = 10.0;
+            hauteur = 10.0;
+            var ctx = document.getElementById('calc').getContext('2d');
+            clear();
+
+            ctx.font = '48px serif';
+            var text = ctx.measureText(data);
+
+            largeur += text.width;
+            hauteur += 48;
+            if (x + largeur > width) {
+                x -= text.width;
+            }
+            if (y + hauteur > height) {
+                y -= 48;
+            }
+
+            ctx.fillStyle = 'rgb(255, 255, 255)';
+            ctx.fillRect(x, y, largeur, hauteur);
+
+            ctx.fillStyle = 'rgb(0, 0, 0)';
+            ctx.fillText(data, x, y + 48);
+        }
+
+        function draw() {
+            var ctx = document.getElementById('canvas').getContext('2d');
+            $.each(maisons, function (index, maison) {
+                var img = new Image();
+                img.onload = function () {
+                    ctx.drawImage(img, maison.x1, maison.y1);
+                };
+                img.src = maison.image;
+                maison.img = img;
+            });
+        }
+
+        /*$(document).on('click', '#calc', function (e) {
+            console.log(e.clientX + '/' + e.clientY);
+        });*/
+
+        /*$(document).on('mousemove', '#calc', function (e) {
+            var inCanvas = false;
+            var x = e.clientX;
+            var y = e.clientY;
+            var ctx = document.getElementById('canvas').getContext('2d');
+            $.each(maisons, function (index, maison) {
+                if ((x >= maison.x1 && x <= maison.x2) && (y >= maison.y1 && y <= maison.y2)) {
+                    inCanvas = true;
+                    maison.img.src = maison.image_hover;
+                    //drawPopup(x, y, maison.libelle);
+                } else {
+                    maison.img.src = maison.image;
+                }
+            });
+            if (!inCanvas) {
+                //clear();
+            }
+        });*/
+
+        function log(txt) {
+            if (log_active) {
+                console.log(txt);
+            }
+        }
+
+        $(document).ready(function () {
+            life();
+            draw();
+        });
+
+
+
+
+    </script>
+</body>
+
+</html>
