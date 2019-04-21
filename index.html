@@ -53,18 +53,18 @@
                     "age": 33,
                     "metier": "STO",
                     "metier_niveau": 4,
-                    "x1": 250,
-                    "x2": 260,
-                    "y1": 50,
-                    "y2": 60,
+                    "x1": 750,
+                    "x2": 760,
+                    "y1": 500,
+                    "y2": 510,
                     "action": "",
-                    "faim": 50,
+                    "faim": 50.0,
                     "stock": 0
                 },
-                /*{
+                {
                     "id": "Francine",
                     "maison": "maison1",
-                    "image": "perso1.png",
+                    "image": "perso/perso_f_blue.png",
                     "sexe": "F",
                     "age": 31,
                     "metier": "STO",
@@ -74,12 +74,13 @@
                     "y1": 590,
                     "y2": 600,
                     "action": "travail",
-                    "faim": 156
+                    "faim": 156,
+                    "stock": 0
                 },
                 {
                     "id": "Kevin",
                     "maison": "maison1",
-                    "image": "perso1.png",
+                    "image": "perso/perso_c_blue.png",
                     "sexe": "H",
                     "age": 13,
                     "metier": "STO",
@@ -89,12 +90,13 @@
                     "y1": 0,
                     "y2": 10,
                     "action": "travail",
-                    "faim": 49
+                    "faim": 49,
+                    "stock": 0
                 },
                 {
                     "id": "Penny",
                     "maison": "maison1",
-                    "image": "perso1.png",
+                    "image": "perso/perso_b_blue.png",
                     "sexe": "F",
                     "age": 3,
                     "metier": "ENF",
@@ -103,8 +105,9 @@
                     "x2": 10,
                     "y1": 0,
                     "y2": 10,
-                    "faim": 330
-                }*/
+                    "faim": 330,
+                    "stock": 0
+                }
             ],
             "famille2": [
                 {
@@ -119,13 +122,14 @@
                     "x2": 90,
                     "y1": 0,
                     "y2": 10,
-                    "faim": 70,
+                    "faim": 70.0,
+                    "stock": 0,
                     "stock": 0
                 },
-                /*{
+                {
                     "id": "Sylvie",
                     "maison": "maison2",
-                    "image": "perso1.png",
+                    "image": "perso/perso_f_red.png",
                     "sexe": "F",
                     "age": 41,
                     "metier": "STO",
@@ -134,12 +138,13 @@
                     "x2": 410,
                     "y1": 200,
                     "y2": 210,
-                    "faim": 137
+                    "faim": 137,
+                    "stock": 0
                 },
                 {
                     "id": "Jeanne",
                     "maison": "maison2",
-                    "image": "perso1.png",
+                    "image": "perso/perso_c_red.png",
                     "sexe": "F",
                     "age": 21,
                     "metier": "STO",
@@ -148,8 +153,9 @@
                     "x2": 310,
                     "y1": 500,
                     "y2": 510,
-                    "faim": 434
-                }*/
+                    "faim": 434,
+                    "stock": 0
+                }
             ]
         };
         var width = 800;
@@ -192,24 +198,24 @@
 
         function life() {
             var ctx = document.getElementById('calc').getContext('2d');
+            clear();
             $.each(familles, function (index, famille) {
                 $.each(famille, function (index_famille, perso) {
-                    clear();
-
                     perso = gestion_faim(perso);
                     perso = mission(perso);
 
                     var img = new Image();
-                    img.onload = function () {
-                        ctx.drawImage(img, perso.x1, perso.y1);
-                    };
                     img.src = perso.image;
                     perso.img = img;
-                    perso.faim -= 2;
+                    ctx.drawImage(perso.img, perso.x1, perso.y1);
+                    drawPopup(perso.x1 + 20, perso.y1 + 20, perso.action);
+
+                    perso.faim -= 0.01;
                 });
             });
             drawInterface();
-            setTimeout(life, 2000); // 2 sec
+            //setTimeout(life, 1000); // 1 sec
+            window.requestAnimationFrame(life);
         }
 
         function gestion_faim(perso) {
@@ -220,7 +226,7 @@
             var s_y = maisons.store.y1; // Coordonnées store y
             var stock_nourriture = maisons[perso.maison].stock;
 
-            if (perso.faim <= 50 || (perso.action == "Mange" && perso.faim < nourriture_max)) { // Il a faim OU il est en train de manger
+            if (perso.faim <= 50 || (perso.action == "Je mange" && perso.faim < nourriture_max)) { // Il a faim OU il est en train de manger
                 if (perso.x1 == a_x && perso.y1 == a_y) { // Il est à la maison
                     if (maisons[perso.maison].stock > 0) { // Les stocks sont OK
                         perso.mission = "Manger";
@@ -234,7 +240,7 @@
                         perso.mission = "Va manger à la maison";
                     }
                 }
-            } else if ((perso.action == "Mange" && perso.faim >= nourriture_max)) {
+            } else if ((perso.action == "Je mange" && perso.faim >= nourriture_max)) {
                 perso.mission = "Aucune"; // il est en train de manger et a suffisament mangé
             }
 
@@ -243,7 +249,7 @@
 
         function mission(perso) {
             var nourriture_max = 500;
-            var pixelParSeconde = 10;
+            var pixelParSeconde = 1;
             var d_x = perso.x1; // Coordonnées perso x
             var d_y = perso.y1; // Coordonnées perso y
             var a_x = maisons[perso.maison].x1; // Coordonnées maison x
@@ -267,8 +273,8 @@
                 return acheter_manger(perso);
             }
 
-            if (perso.mission == "Va déposer le stock à la maison") {
-                log("Mission : Va déposer le stock à la maison");
+            if (perso.mission == "Ramèner les provisions") {
+                log("Mission : Ramèner les provisions");
                 return deposer_manger(perso);
             }
 
@@ -289,9 +295,9 @@
 
         function deposer_manger(perso) {
             if (perso.position == "maison") {
-                perso.action = "Dépose les courses";
-                perso.stock -= 100;
-                maisons[perso.maison].stock += 100;
+                perso.action = "Je dépose les courses";
+                perso.stock -= 1;
+                maisons[perso.maison].stock += 1;
                 if (perso.stock == 0) {
                     perso.mission = "Aucune";
                 }
@@ -303,11 +309,11 @@
 
         function acheter_manger(perso) {
             if (perso.position == "magasin") {
-                perso.action = "Achète à manger";
-                perso.stock += 100;
-                maisons.store.stock -= 100;
+                perso.action = "J'achète des provisions";
+                perso.stock += 1;
+                maisons.store.stock -= 1;
                 if (perso.stock >= 500) {
-                    perso.mission = "Va déposer le stock à la maison";
+                    perso.mission = "Ramèner les provisions";
                 }
                 return perso;
             } else {
@@ -318,7 +324,7 @@
         function ballade(perso) {
             log("Je me ballade");
             perso.mission = "Aucune";
-            perso.action = "En ballade";
+            perso.action = "Je me ballade";
             var r_x = getRandomInt(800);
             var r_y = getRandomInt(600);
             perso.x1 = calculPath(perso.x1, r_x);
@@ -330,16 +336,16 @@
 
         function mange(perso) {
             log('Je mange');
-            perso.action = "Mange";
-            perso.faim += 160;
-            maisons[perso.maison].stock -= 160;
+            perso.action = "Je mange";
+            perso.faim += 1;
+            maisons[perso.maison].stock -= 1;
 
             return perso;
         }
 
         function goMagasin(perso) {
             log('Je vais au magasin');
-            perso.action = "Va au magasin";
+            perso.action = "Je vais au magasin";
             perso.x1 = calculPath(perso.x1, maisons.store.x1);
             perso.y1 = calculPath(perso.y1, maisons.store.y1);
             if (perso.x1 == maisons.store.x1 && perso.y1 == maisons.store.y1) {
@@ -351,7 +357,7 @@
 
         function goMaison(perso) {
             log('Je vais à la maison');
-            perso.action = "Va à la maison";
+            perso.action = "Je vais à la maison";
             perso.x1 = calculPath(perso.x1, maisons[perso.maison].x1);
             perso.y1 = calculPath(perso.y1, maisons[perso.maison].y1);
             if (perso.x1 == maisons[perso.maison].x1 && perso.y1 == maisons[perso.maison].y1) {
@@ -363,14 +369,14 @@
 
         function calculPath(d, a) {
             if (d < a) {
-                var result = d + (10 * 2);
+                var result = d + 1;
                 if (result >= a) {
                     return a;
                 } else {
                     return result;
                 }
             } else {
-                var result = d - (10 * 2);
+                var result = d - 1;
                 if (result <= a) {
                     return a;
                 } else {
@@ -390,21 +396,33 @@
         function drawInterface() {
             var div = document.getElementById('interface');
 
-            div.innerHTML = '';
+            div.innerHTML = '<b>Magasin (stock nourriture: ' + maisons.store.stock + ')</b><br />';
             $.each(familles, function (index, famille) {
-                div.innerHTML += '<h2>' + index + '(stock nourriture: ' + maisons[famille[0].maison].stock + ')</h2>';
+                div.innerHTML += '<b>' + index + ' (stock nourriture: ' + maisons[famille[0].maison].stock + ')</b><br />';
                 $.each(famille, function (index_famille, perso) {
                     html = '<div style="float:left;border:solid 1px black;padding:5px">';
                     html += '<h3>' + perso.id + '(' + perso.age + ' ans)</h3>';
-                    html += '<b>action: ' + perso.action + '</b><br />';
-                    html += '<b>mission:' + perso.mission + '</b><br />';
+                    html += '<b>Action:</b><br />' + perso.action + '<br />';
+                    html += '<b>Mission:</b><br />' + perso.mission + '<br />';
                     html += '<ul>';
-                    html += '<li>maison: ' + perso.maison + ' (' + maisons[perso.maison].x1 + '/' + maisons[perso.maison].y1 + ')</li>';
-                    html += '<li>personnage: <img src="' + perso.image + '" /> (' + perso.x1 + '/' + perso.y1 + ')</li>';
+                    //html += '<li>maison: ' + perso.maison + ' (' + maisons[perso.maison].x1 + '/' + maisons[perso.maison].y1 + ')</li>';
+                    //html += '<li>personnage: <img src="' + perso.image + '" /> (' + perso.x1 + '/' + perso.y1 + ')</li>';
+                    html += '<li>personnage: <img src="' + perso.image + '" /></li>';
                     html += '<li>sexe: ' + perso.sexe + '</li>';
-                    html += '<li>metier: ' + perso.metier + '</li>';
-                    html += '<li>metier_niveau: ' + perso.metier_niveau + '</li>';
-                    html += '<li>faim: ' + perso.faim + '</li>';
+                    //html += '<li>metier: ' + perso.metier + '</li>';
+                    //html += '<li>metier_niveau: ' + perso.metier_niveau + '</li>';
+                    html += '<li>Stock: ' + perso.stock + '</li>';
+                    var faim = parseInt(perso.faim);
+                    var niveau_faim = '<span style="color:red">Oui</span>';
+                    if (faim > 50) {
+                        var niveau_faim = 'Non';
+                    } else if (faim < 0) {
+                        var niveau_faim = 'Affamé';
+                    }
+                    if (perso.action == 'Je mange') {
+                        var niveau_faim = '<span style="color:green">Mange</span>';
+                    }
+                    html += '<li>faim: ' + niveau_faim + '(' + faim + ')</li>';
                     html += '</ul>';
                     html += '</div>';
                     div.innerHTML += html;
@@ -417,25 +435,24 @@
             largeur = 10.0;
             hauteur = 10.0;
             var ctx = document.getElementById('calc').getContext('2d');
-            clear();
 
-            ctx.font = '48px serif';
+            ctx.font = '16px serif';
             var text = ctx.measureText(data);
 
             largeur += text.width;
-            hauteur += 48;
+            hauteur += 16;
             if (x + largeur > width) {
                 x -= text.width;
             }
             if (y + hauteur > height) {
-                y -= 48;
+                y -= 16;
             }
 
             ctx.fillStyle = 'rgb(255, 255, 255)';
             ctx.fillRect(x, y, largeur, hauteur);
 
             ctx.fillStyle = 'rgb(0, 0, 0)';
-            ctx.fillText(data, x, y + 48);
+            ctx.fillText(data, x, y + 16);
         }
 
         function draw() {
@@ -480,8 +497,16 @@
         }
 
         $(document).ready(function () {
-            life();
             draw();
+
+            $.each(familles, function (index, famille) {
+                $.each(famille, function (index_famille, perso) {
+                    var img = new Image();
+                    img.src = perso.image;
+                    perso.img = img;
+                });
+            });
+            window.requestAnimationFrame(life);
         });
 
 
