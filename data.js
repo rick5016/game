@@ -1,33 +1,5 @@
-var interface = {
-    "portrait": [
-        {
-            "id": "portrait",
-            "image": "objet1.png",
-            "x1": 15,
-            "x2": 50,
-            "y1": 15,
-            "y2": 50,
-        },
-        {
-            "id": "life",
-            "image": "objet1.png",
-            "life": 10,
-            "x1": 10,
-            "x2": 20,
-            "y1": 10,
-            "y2": 50,
-        },
-        {
-            "id": "mana",
-            "mana": 10,
-            "image": "objet1.png",
-            "x1": 40,
-            "x2": 50,
-            "y1": 10,
-            "y2": 50,
-        }
-    ]
-};
+
+var familles_varNames = ["id", "maison", "image", "sexe", "age", "metier", "metier_niveau", "x1", "x2", "y1", "y2", "mission", "action", "faim", "stock", "popup_last", "popup_timer"];
 var familles = {
     "famille1": [
         {
@@ -42,11 +14,14 @@ var familles = {
             "x2": 360,
             "y1": 100,
             "y2": 110,
+            "mission": "aucune",
             "action": "",
             "faim": 50.0,
-            "stock": 0
+            "stock": 0,
+            'popup_last': "",
+            'popup_timer': 0,
         },
-        /*{
+        {
             "id": "Francine",
             "maison": "maison1",
             "image": "perso/perso_f_blue.png",
@@ -58,9 +33,12 @@ var familles = {
             "x2": 800,
             "y1": 100,
             "y2": 110,
-            "action": "travail",
+            "mission": "aucune",
+            "action": "",
             "faim": 156,
-            "stock": 0
+            "stock": 0,
+            'popup_last': "",
+            'popup_timer': 0,
         },
         {
             "id": "Kevin",
@@ -74,9 +52,12 @@ var familles = {
             "x2": 10,
             "y1": 0,
             "y2": 10,
-            "action": "travail",
+            "mission": "aucune",
+            "action": "",
             "faim": 49,
-            "stock": 0
+            "stock": 0,
+            'popup_last': "",
+            'popup_timer': 0,
         },
         {
             "id": "Penny",
@@ -86,15 +67,19 @@ var familles = {
             "age": 3,
             "metier": "",
             "metier_niveau": 0,
-            "x1": 0,
-            "x2": 10,
-            "y1": 0,
-            "y2": 10,
+            "x1": 340,
+            "x2": 350,
+            "y1": 190,
+            "y2": 200,
+            "mission": "aucune",
+            "action": "",
             "faim": 330,
-            "stock": 0
-        }*/
+            "stock": 0,
+            'popup_last': "",
+            'popup_timer': 0,
+        }
     ],
-    /*"famille2": [
+    "famille2": [
         {
             "id": "Jean",
             "maison": "maison2",
@@ -107,9 +92,13 @@ var familles = {
             "x2": 90,
             "y1": 0,
             "y2": 10,
+            "mission": "aucune",
+            "action": "",
             "faim": 70.0,
             "stock": 0,
-            "stock": 0
+            "stock": 0,
+            'popup_last': "",
+            'popup_timer': 0,
         },
         {
             "id": "Sylvie",
@@ -123,8 +112,12 @@ var familles = {
             "x2": 410,
             "y1": 200,
             "y2": 210,
+            "mission": "aucune",
+            "action": "",
             "faim": 137,
-            "stock": 0
+            "stock": 0,
+            'popup_last': "",
+            'popup_timer': 0,
         },
         {
             "id": "Jeanne",
@@ -138,12 +131,26 @@ var familles = {
             "x2": 310,
             "y1": 500,
             "y2": 510,
+            "mission": "aucune",
+            "action": "",
             "faim": 434,
-            "stock": 0
+            "stock": 0,
+            'popup_last': "",
+            'popup_timer': 0,
         }
-    ]*/
+    ]
 };
-var maisons = {
+var zones = {
+    "map": {
+        "id": "map",
+        "image_hover": "",
+        "image": "",
+        "libelle": "Map",
+        "x1": 0,
+        "x2": 800,
+        "y1": 0,
+        "y2": 600,
+    },
     "maison1": {
         "id": "maison1",
         "image_hover": "batiment/maison1.png",
@@ -153,7 +160,7 @@ var maisons = {
         "x2": 380,
         "y1": 120,
         "y2": 180,
-        "stock": 0
+        "stock": 536
     },
     "maison2": {
         "id": "maison2",
@@ -164,7 +171,7 @@ var maisons = {
         "x2": 480,
         "y1": 180,
         "y2": 240,
-        "stock": 1500
+        "stock": 1159
     },
     "entrepot": {
         "id": "entrepot",
@@ -175,21 +182,34 @@ var maisons = {
         "x2": 780,
         "y1": 100,
         "y2": 160,
-        "stock": 10000
+        "stock": 13657
     },
     "champ": {
         "id": "champ",
         "image_hover": "batiment/champ.png",
         "image": "batiment/champ.png",
-        "libelle": "Magasin",
+        "libelle": "Champ",
         "x1": 200,
-        "x2": 500,
+        "x2": 400,
         "y1": 400,
-        "y2": 600,
+        "y2": 500,
     }
 };
 var missions = {
-    "aucune": "Aucune",
-    "faim": ['mange', 'chercher_nourriture', 'ramener_nourriture'],
-    "metier": ['entrepot', 'champ', 'deposer_nourriture_entrepot'],
+    "gestion_faim": {
+        'manger': 'Je mange',
+        'chercher_nourriture_maison': "Je vais manger à la maison",
+        'chercher_nourriture_entrepot': "Je vais chercher de la nourriture à l'entrepôt",
+        'recuperer_nourriture_entrepot': "Je récupère de la nourriture à l'entrepôt",
+        'ramener_nourriture_maison': 'Je ramène la nourriture à la maison',
+        'deposer_nourriture_maison': 'Je dépose la nourriture à la maison'
+    },
+    "gestion_metier": {
+        'aller_travailler_entrepot': "Je vais travailler à l'entrepôt",
+        'travailler_entrepot': "Je travaille à l'entrepôt",
+        'aller_travailler_champ': "Je vais travailler au champ",
+        'travailler_champ': "Je travaille au champ",
+        'aller_deposer_ble_entrepot': "Je vais déposer le blé à l'entrepôt",
+        'deposer_ble_entrepot': "Je dépose le blé à l'entrepôt"
+    },
 };
