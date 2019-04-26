@@ -129,10 +129,14 @@ class batiment {
             console.log("Le personnag est derrière un batiment sur l'axe x");
         }
       } else if (this.calc_y_save == this.calc_y) {
-        if (x == this.calc_x) {
-          // Il faut décider si on va à gauche ou à droite
+        if (x == this.calc_x || this.bloque) {
+          this.bloque = true;
+          // TODOOOOOOOOOO ! Il faut décider si on va à gauche ou à droite
+          this.calc_x -= this.calc_pixel; // On va à l'opposé : gauche
           if (logg)
-            console.log("Le personnag est derrière un batiment sur l'axe x");
+            console.log("Le personnage est derrière le batiment sur l'axe (x) (on va à gauche pour l'instant) -> " + this.calc_y);
+          /*if (logg)
+            console.log("Le personnag est derrière un batiment sur l'axe x");*/
         }
 
         this.calc_x = this.calc_x_save;
