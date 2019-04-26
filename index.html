@@ -9,326 +9,92 @@
 <body>
     <canvas id="canvas" width="800" height="600"></canvas>
     <canvas id="calc" width="800" height="600"></canvas>
+    <canvas id="dot" width="800" height="600"></canvas>
     <div style="position:absolute;margin-left: 810px;">
         <div id="interface" style="border:solid 1px black;float:left;"></div>
         <div id="histo" style="border:solid 1px black;margin-left: 810px;"></div>
     </div>
     <script src="jquery.min.js"></script>
+
+    <!--Data-->
     <script src="data.js"></script>
+
+    <!--Objet-->
     <script src="perso.js"></script>
+    <script src="batiment.js"></script>
+    <script src="hub.js"></script>
+
+    <!--Gestion-->
     <script src="gestion_faim.js"></script>
     <script src="gestion_metier.js"></script>
+
     <script type="text/javascript">
         var log_activation = false;
-        var historique = [];
+        var log = [];
+
         var width = 800;
         var height = 600;
+
         var population = [];
-        var time = 0;
+        var zones = [];
+        var hub_interface = "";
 
         function histo(action) {
-            /*if (historique[(historique.length - 1)] != action) {
-                historique.push(action);
-            }*/
+            if (log_activation) {
+                if (log[(log.length - 1)] != action) {
+                    log.push(action);
+                }
+            }
         }
 
         function life() {
-            time++;
-
-            var date = new Date();
-            var heure = date.getHours();
-
             var ctx = document.getElementById('calc').getContext('2d');
-            clear();
+            ctx.clearRect(0, 0, width, height);
 
             $.each(population, function (index, perso) {
-                perso = gestion_faim(perso);
+                
+                zones.entrepot.go(this);
+                /*gestion_faim(perso);
                 if (perso.mission in missions.gestion_faim === false) {
-                    perso = gestion_metier(perso);
+                    gestion_metier(perso);
                 }
-                perso = mission(perso);
+                if (perso.mission == 'aucune') {
+                    perso.ballade();
+                }*/
 
                 ctx.drawImage(perso.img, perso.x1, perso.y1);
-                drawPopup(perso);
+                perso.drawPopup();
 
                 perso.faim -= 0.01;
             });
-            drawInterface();
-            //setTimeout(life, 100); // 1 sec
+            hub_interface.drawInterface();
             window.requestAnimationFrame(life);
         }
 
-        function mission(perso) {
-            if (perso.mission == "manger") {
-                histo("Mission: manger<br />Action: " + missions.gestion_faim.manger + "<br />");
-                perso.action = missions.gestion_faim.manger;
-                perso.faim += 1;
-                zones[perso.maison].stock -= 1;
-            }
-
-            if (perso.mission == "chercher_nourriture_maison") {
-                histo("Mission: chercher_nourriture_maison<br />Action: " + missions.gestion_faim.chercher_nourriture_maison + "<br />");
-                perso.action = missions.gestion_faim.chercher_nourriture_maison;
-                goMaison(perso);
-            }
-
-            if (perso.mission == "chercher_nourriture_entrepot") {
-                histo("Mission: chercher_nourriture_entrepot<br />Action: " + missions.gestion_faim.chercher_nourriture_entrepot + "<br />");
-                perso.action = missions.gestion_faim.chercher_nourriture_entrepot;
-                goEntrepot(perso);
-            }
-
-            if (perso.mission == "recuperer_nourriture_entrepot") {
-                histo("Mission: recuperer_nourriture_entrepot<br />Action: " + missions.gestion_faim.recuperer_nourriture_entrepot + "<br />");
-                perso.action = missions.gestion_faim.recuperer_nourriture_entrepot;
-                perso.stock += 1;
-                zones.entrepot.stock -= 1;
-            }
-
-            if (perso.mission == "ramener_nourriture_maison") {
-                histo("Mission: ramener_nourriture_maison<br />Action: " + missions.gestion_faim.ramener_nourriture_maison + "<br />");
-                perso.action = missions.gestion_faim.ramener_nourriture_maison;
-                goMaison(perso);
-            }
-
-            if (perso.mission == "deposer_nourriture_maison") {
-                histo("Mission: deposer_nourriture_maison<br />Action: " + missions.gestion_faim.deposer_nourriture_maison + "<br />");
-                perso.action = missions.gestion_faim.deposer_nourriture_maison;
-                perso.stock -= 1;
-                zones[perso.maison].stock += 1;
-            }
-
-            if (perso.mission == "aller_travailler_entrepot") {
-                histo("Mission: aller_travailler_entrepot<br />Action: " + missions.gestion_metier.aller_travailler_entrepot + "<br />");
-                perso.action = missions.gestion_metier.aller_travailler_entrepot;
-                goEntrepot(perso);
-            }
-
-            if (perso.mission == "travailler_entrepot") {
-                histo("Mission: travailler_entrepot<br />Action: " + missions.gestion_metier.travailler_entrepot + "<br />");
-                perso.action = missions.gestion_metier.travailler_entrepot;
-                goAleatoire(perso, zones.entrepot);
-            }
-
-            if (perso.mission == "aller_travailler_champ") {
-                histo("Mission: aller_travailler_champ<br />Action: " + missions.gestion_metier.aller_travailler_champ + "<br />");
-                perso.action = missions.gestion_metier.aller_travailler_champ;
-                goChamp(perso);
-            }
-
-            if (perso.mission == "travailler_champ") {
-                histo("Mission: travailler_champ<br />Action: " + missions.gestion_metier.travailler_champ + "<br />");
-                perso.action = missions.gestion_metier.travailler_champ;
-                perso.stock += 0.1;
-                zones.champ.stock -= 0.1;
-                goAleatoire(perso, zones.champ);
-            }
-
-            if (perso.mission == "aller_deposer_ble_entrepot") {
-                histo("Mission: aller_deposer_ble_entrepot<br />Action: " + missions.gestion_metier.aller_deposer_ble_entrepot + "<br />");
-                perso.action = missions.gestion_metier.aller_deposer_ble_entrepot;
-                goEntrepot(perso);
-            }
-
-            if (perso.mission == "deposer_ble_entrepot") {
-                histo("Mission: deposer_ble_entrepot<br />Action: " + missions.gestion_metier.deposer_ble_entrepot + "<br />");
-                perso.action = missions.gestion_metier.deposer_ble_entrepot;
-                perso.stock -= 1;
-                zones.entrepot.stock += 1;
-            }
-
-            if (perso.mission == 'aucune') {
-                ballade(perso);
-            }
-
-            return perso;
-        }
-
-        function ballade(perso) {
-            histo("Mission: aucune<br />Action: Je me ballade<br />");
-            perso.mission = "aucune";
-            perso.action = "Je me ballade";
-            goAleatoire(perso, zones.map);
-            perso.position = "dehors";
-
-            return perso;
-        }
-
-        function go(perso, batiment) {
-            log("Je vais à : " + batiment);
-            perso.action = "Je vais à : " + batiment;
-            perso.x1 = calculPath(perso.x1, batiments[batiment].x1);
-            perso.y1 = calculPath(perso.y1, batiments[batiment].y1);
-            if (perso.x1 == batiments[batiment].x1 && perso.y1 == batiments[batiment].y1) {
-                perso.position = batiment;
-            }
-
-            return perso;
-        }
-        function goAleatoire(perso, zone) {
-            var move = getRandomInt(1, 5);
-            if (move == 5) {
-                var move_x = getRandomInt(1, 5);
-                if (move_x == 5) {
-                    perso.x1 = calculPath(perso.x1, getRandomInt(zone.x1, zone.x2));
-                }
-                var move_y = getRandomInt(1, 5);
-                if (move_y == 5) {
-                    perso.y1 = calculPath(perso.y1, getRandomInt(zone.y1, zone.y2));
-                }
-            }
-        }
-
-        function goEntrepot(perso) {
-            perso.x1 = calculPath(perso.x1, zones.entrepot.x1);
-            perso.y1 = calculPath(perso.y1, zones.entrepot.y1);
-            if (perso.x1 == zones.entrepot.x1 && perso.y1 == zones.entrepot.y1) {
-                perso.position = "entrepot";
-            }
-
-            return perso;
-        }
-
-        function goChamp(perso) {
-            perso.x1 = calculPath(perso.x1, zones.champ.x1);
-            perso.y1 = calculPath(perso.y1, zones.champ.y1);
-            if (perso.x1 == zones.champ.x1 && perso.y1 == zones.champ.y1) {
-                perso.position = "champ";
-            }
-
-            return perso;
-        }
-
-        function goMaison(perso) {
-            perso.x1 = calculPath(perso.x1, zones[perso.maison].x1);
-            perso.y1 = calculPath(perso.y1, zones[perso.maison].y1);
-            if (perso.x1 == zones[perso.maison].x1 && perso.y1 == zones[perso.maison].y1) {
-                perso.position = "maison";
-            }
-
-            return perso;
-        }
-
-        function calculPath(d, a) {
-            if (d < a) {
-                var result = d + 1;
-                if (result >= a) {
-                    return a;
-                } else {
-                    return result;
-                }
-            } else {
-                var result = d - 1;
-                if (result <= a) {
-                    return a;
-                } else {
-                    return result;
-                }
-            }
-        }
-        function getRandomInt(min, max) {
-            min = Math.ceil(min);
-            max = Math.floor(max);
-            return Math.floor(Math.random() * (max - min + 1)) + min;
-        }
-
-        function clear() {
-            var ctx = document.getElementById('calc').getContext('2d');
-            ctx.clearRect(0, 0, width, height);
-        }
-
-        // perso.x1 + 20, perso.y1 + 20, perso.action
-        function drawPopup(perso) {
-            if (perso.popup_last != perso.action) {
-                perso.popup_timer = 0;
-            }
-            if (perso.popup_timer < 180) {
-                perso.popup_last = perso.action;
-                perso.popup_timer += 1;
-                var x = perso.x1 + 20;
-                var y = perso.y1 + 20;
-                largeur = 10.0;
-                hauteur = 10.0;
-                var ctx = document.getElementById('calc').getContext('2d');
-
-                ctx.font = '16px serif';
-                var text = ctx.measureText(perso.action);
-
-                largeur += text.width;
-                hauteur += 16;
-                if (x + largeur > width) {
-                    x -= text.width;
-                }
-                if (y + hauteur > height) {
-                    y -= 16;
-                }
-
-                ctx.fillStyle = 'rgb(255, 255, 255)';
-                ctx.fillRect(x, y, largeur, hauteur);
-
-                ctx.fillStyle = 'rgb(0, 0, 0)';
-                ctx.fillText(perso.action, x, y + 16);
-            }
-        }
-
-        function drawInterface() {
-            var histo = document.getElementById('histo');
-            var html = '';
-            $.each(historique, function (index, txt) {
-                html += txt + '<br />';
-            });
-            histo.innerHTML = html;
-            var div = document.getElementById('interface');
-            div.innerHTML = '<b>Entrepôt (stock nourriture: ' + zones.entrepot.stock + ')</b><br />';
-            div.innerHTML += '<b>Maison1 (stock nourriture: ' + zones.maison1.stock + ')</b><br />';
-            div.innerHTML += '<b>Maison2 (stock nourriture: ' + zones.maison2.stock + ')</b><br />';
-            $.each(population, function (index, perso) {
-                //div.innerHTML += '<b>' + index + ' (stock nourriture: ' + zones[famille[0].maison].stock + ')</b><br />';
-                //$.each(famille, function (index_famille, perso) {
-                html = '<div style="float:left;border:solid 1px black;padding:5px">';
-                html += '<b>' + perso.id + '(' + perso.age + ' ans)</b><br />';
-                html += 'Métier: ' + perso.metier + '<br />';
-                html += '<b>Action:</b><br />' + perso.action + '<br />';
-                html += '<b>Mission:</b><br />' + perso.mission + '<br />';
-                html += '<ul>';
-                //html += '<li>maison: ' + perso.maison + ' (' + zones[perso.maison].x1 + '/' + zones[perso.maison].y1 + ')</li>';
-                //html += '<li>personnage: <img src="' + perso.image + '" /> (' + perso.x1 + '/' + perso.y1 + ')</li>';
-                html += '<li>personnage: <img src="' + perso.image + '" /></li>';
-                html += '<li>sexe: ' + perso.sexe + '</li>';
-                //html += '<li>metier: ' + perso.metier + '</li>';
-                //html += '<li>metier_niveau: ' + perso.metier_niveau + '</li>';
-                html += '<li>Stock: ' + parseInt(perso.stock) + '</li>';
-                var faim = parseInt(perso.faim);
-                var niveau_faim = '<span style="color:red">Oui</span>';
-                if (faim > 50) {
-                    var niveau_faim = 'Non';
-                } else if (faim < 0) {
-                    var niveau_faim = 'Affamé';
-                }
-                if (perso.action == 'Je mange') {
-                    var niveau_faim = '<span style="color:green">Mange</span>';
-                }
-                html += '<li>faim: ' + niveau_faim + '(' + faim + ')</li>';
-                html += '</ul>';
-                html += '</div>';
-                div.innerHTML += html;
-                //});
-                //div.innerHTML += '<div style="clear:both"></div>';
-            });
-        }
-
-        function draw() {
-
+        $(document).ready(function () {
             // Chargement et affichage des bâtiments
             var ctx = document.getElementById('canvas').getContext('2d');
-            $.each(zones, function (index, maison) {
+            $.each(batiments, function (index, zone) {
+                var arr_batiments = [];
+                $.each(zone, function (index_batiment, data_batiment) {
+                    arr_batiments.push(data_batiment);
+                });
+                var b = new batiment(batiments_varNames, arr_batiments);
                 var img = new Image();
                 img.onload = function () {
-                    ctx.drawImage(img, maison.x1, maison.y1);
+                    ctx.drawImage(img, zone.x1, zone.y1);
                 };
-                img.src = maison.image;
-                maison.img = img;
+                img.src = b.image;
+                b.img = img;
+                zones[zone.id] = b;
             });
+
+            // Chargement de l'interface
+            var arr_hub = [];
+            $.each(hub_data, function (index_hub, data_hub) {
+                arr_hub.push(data_hub);
+            });
+            hub_interface = new hub(hub_varNames, arr_hub);
 
             // Chargement des personnages
             $.each(familles, function (index_famille, famille) {
@@ -344,46 +110,9 @@
                     population.push(p);
                 });
             });
-        }
 
-        function log(data) {
-            if (log_activation) {
-                console.log(data);
-            }
-        }
-
-        /*$(document).on('click', '#calc', function (e) {
-            console.log(e.clientX + '/' + e.clientY);
-        });*/
-
-        /*$(document).on('mousemove', '#calc', function (e) {
-            var inCanvas = false;
-            var x = e.clientX;
-            var y = e.clientY;
-            var ctx = document.getElementById('canvas').getContext('2d');
-            $.each(zones, function (index, maison) {
-                if ((x >= maison.x1 && x <= maison.x2) && (y >= maison.y1 && y <= maison.y2)) {
-                    inCanvas = true;
-                    maison.img.src = maison.image_hover;
-                    //drawPopup(x, y, maison.libelle);
-                } else {
-                    maison.img.src = maison.image;
-                }
-            });
-            if (!inCanvas) {
-                //clear();
-            }
-        });*/
-
-        $(document).ready(function () {
-            draw();
-            histo('START');
             window.requestAnimationFrame(life);
         });
-
-
-
-
     </script>
 </body>
 

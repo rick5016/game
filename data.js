@@ -1,7 +1,10 @@
 
 var familles_varNames = ["id", "maison", "image", "sexe", "age", "metier", "metier_niveau", "x1", "x2", "y1", "y2", "mission", "action", "faim", "stock", "popup_last", "popup_timer"];
+var batiments_varNames = ["id", "image_hover", "image", "libelle", "x1", "x2", "y1", "y2", "stock"];
+var hub_varNames = ["heure"];
+
 var familles = {
-    "famille1": [
+    /*"famille1": [
         {
             "id": "Paul",
             "maison": "maison1",
@@ -10,10 +13,10 @@ var familles = {
             "age": 33,
             "metier": "entrepot",
             "metier_niveau": 4,
-            "x1": 350,
-            "x2": 360,
+            "x1": 700,
+            "x2": 710,
             "y1": 100,
-            "y2": 110,
+            "y2": 120,
             "mission": "aucune",
             "action": "",
             "faim": 50.0,
@@ -48,14 +51,14 @@ var familles = {
             "age": 13,
             "metier": "champ",
             "metier_niveau": 0,
-            "x1": 0,
-            "x2": 10,
-            "y1": 0,
-            "y2": 10,
+            "x1": 450,
+            "x2": 460,
+            "y1": 370,
+            "y2": 380,
             "mission": "aucune",
             "action": "",
-            "faim": 49,
-            "stock": 0,
+            "faim": 51,
+            "stock": 97,
             'popup_last': "",
             'popup_timer': 0,
         },
@@ -78,9 +81,9 @@ var familles = {
             'popup_last': "",
             'popup_timer': 0,
         }
-    ],
+    ],*/
     "famille2": [
-        {
+        /*{
             "id": "Jean",
             "maison": "maison2",
             "image": "perso/perso_h_red.png",
@@ -88,13 +91,13 @@ var familles = {
             "age": 43,
             "metier": "champ",
             "metier_niveau": 8,
-            "x1": 80,
-            "x2": 90,
-            "y1": 0,
-            "y2": 10,
+            "x1": 500,
+            "x2": 510,
+            "y1": 160,
+            "y2": 180,
             "mission": "aucune",
             "action": "",
-            "faim": 70.0,
+            "faim": 45.0,
             "stock": 0,
             "stock": 0,
             'popup_last': "",
@@ -118,7 +121,7 @@ var familles = {
             "stock": 0,
             'popup_last': "",
             'popup_timer': 0,
-        },
+        },*/
         {
             "id": "Jeanne",
             "maison": "maison2",
@@ -127,10 +130,10 @@ var familles = {
             "age": 21,
             "metier": "champ",
             "metier_niveau": 1,
-            "x1": 300,
-            "x2": 310,
-            "y1": 500,
-            "y2": 510,
+            "x1": 150,
+            "x2": 160,
+            "y1": 450,
+            "y2": 470,
             "mission": "aucune",
             "action": "",
             "faim": 434,
@@ -140,7 +143,7 @@ var familles = {
         }
     ]
 };
-var zones = {
+var batiments = {
     "map": {
         "id": "map",
         "image_hover": "",
@@ -150,6 +153,7 @@ var zones = {
         "x2": 800,
         "y1": 0,
         "y2": 600,
+        "stock": 0
     },
     "maison1": {
         "id": "maison1",
@@ -160,18 +164,18 @@ var zones = {
         "x2": 380,
         "y1": 120,
         "y2": 180,
-        "stock": 536
+        "stock": 0
     },
     "maison2": {
         "id": "maison2",
         "image_hover": "batiment/maison2.png",
         "image": "batiment/maison2.png",
         "libelle": "Maison",
-        "x1": 400,
-        "x2": 480,
-        "y1": 180,
-        "y2": 240,
-        "stock": 1159
+        "x1": 420,
+        "x2": 500,
+        "y1": 300,
+        "y2": 360,
+        "stock": 0
     },
     "entrepot": {
         "id": "entrepot",
@@ -193,7 +197,11 @@ var zones = {
         "x2": 400,
         "y1": 400,
         "y2": 500,
-    }
+        "stock": 0
+    },
+};
+var hub_data = {
+    "heure": 12,
 };
 var missions = {
     "gestion_faim": {

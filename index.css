@@ -6,6 +6,11 @@
 }
 #calc {
     position: absolute;
+    z-index: 3;
+    border: 1px solid black;
+}
+#dot {
+    position: absolute;
     z-index: 2;
     border: 1px solid black;
 }
